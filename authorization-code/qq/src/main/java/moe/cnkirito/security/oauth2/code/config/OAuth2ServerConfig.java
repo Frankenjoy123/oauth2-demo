@@ -68,8 +68,8 @@ public class OAuth2ServerConfig {
                 .requestMatchers()
                     // 保险起见，防止被主过滤器链路拦截
                     .antMatchers("/qq/**").and()
-                    .authorizeRequests().anyRequest().authenticated()
-                    .and()
+                .authorizeRequests()
+                    .anyRequest().authenticated().and()
                 .authorizeRequests()
                     .antMatchers("/qq/info/**").access("#oauth2.hasScope('get_user_info')")
                     .antMatchers("/qq/fans/**").access("#oauth2.hasScope('get_fanslist')");
@@ -90,7 +90,9 @@ public class OAuth2ServerConfig {
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 
             // @formatter:off
-            clients.inMemory().withClient("aiqiyi")
+            clients.inMemory()
+
+               .withClient("aiqiyi")
                     .resourceIds(QQ_RESOURCE_ID)
                     .authorizedGrantTypes("authorization_code", "refresh_token", "implicit")
                     .authorities("ROLE_CLIENT")
@@ -99,8 +101,8 @@ public class OAuth2ServerConfig {
                     .redirectUris("http://localhost:8081/aiqiyi/qq/redirect")
                     .autoApprove(true)
                     .autoApprove("get_user_info")
-                    .and()
-                    .withClient("youku")
+
+               .and().withClient("youku")
                     .resourceIds(QQ_RESOURCE_ID)
                     .authorizedGrantTypes("authorization_code", "refresh_token", "implicit")
                     .authorities("ROLE_CLIENT")

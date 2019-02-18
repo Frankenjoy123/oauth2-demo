@@ -43,12 +43,13 @@ public class OAuth2ServerConfig {
             http
                     // Since we want the protected resources to be accessible in the UI as well we need
                     // session creation to be allowed (it's disabled by default in 2.0.6)
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                    .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
 //                    .and()
 //                    .requestMatchers().anyRequest()
-                    .and()
+            .and()
                     .anonymous()
-                    .and()
+            .and()
                     .authorizeRequests()
                     .antMatchers("/product/**").access("#oauth2.hasScope('select') and hasPermission('delete')")
                     .antMatchers("/order/**").authenticated();//配置order访问控制，必须认证过后才可以访问
@@ -71,18 +72,20 @@ public class OAuth2ServerConfig {
         @Override
         public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
             //配置两个客户端,一个用于password认证一个用于client认证
-            clients.inMemory().withClient("client_1")
-                    .resourceIds(DEMO_RESOURCE_ID)
-                    .authorizedGrantTypes("client_credentials")
-                    .scopes("select")
-                    .authorities("oauth2")
-                    .secret("123456")
-                    .and().withClient("client_2")
-                    .resourceIds(DEMO_RESOURCE_ID)
-                    .authorizedGrantTypes("password", "refresh_token")
-                    .scopes("select")
-                    .authorities("oauth2")
-                    .secret("123456");
+            clients.inMemory()
+                        .withClient("client_1")
+                            .resourceIds(DEMO_RESOURCE_ID)
+                            .authorizedGrantTypes("client_credentials")
+                            .scopes("select")
+                            .authorities("oauth2")
+                            .secret("123456")
+                    .and()
+                        .withClient("client_2")
+                            .resourceIds(DEMO_RESOURCE_ID)
+                            .authorizedGrantTypes("password", "refresh_token")
+                            .scopes("select")
+                            .authorities("oauth2")
+                            .secret("123456");
         }
 
         @Override

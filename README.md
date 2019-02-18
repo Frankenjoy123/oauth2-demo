@@ -1,6 +1,61 @@
-2018-7-16 日更新
+
+### oauth2根据使用场景不同，分成了4种模式
+
+* 授权码模式（authorization code）
+* 简化模式（implicit）
+* 密码模式（resource owner password credentials）
+* 客户端模式（client credentials）
+
+* 本文重点讲解接口对接中常使用的密码模式（以下简称password模式）
+* 和客户端模式（以下简称client模式）
+* 授权码模式使用到了回调地址，是最为复杂的方式，通常网站中经常出现的微博，qq第三方登录，都会采用这个形式。
+* 简化模式不常用。
+
+
 
 ### 新增授权码（authorization_code）模式使用说明
+
+#### qq授权服务端
+1. 向服务端发起请求
+* response_code=code
+```http
+http://localhost:8080/oauth/authorize?client_id=aiqiyi&response_type=code&redirect_uri=http://localhost:8081/aiqiyi/qq/redirect
+```
+
+#### aiyiqi客户端
+1. 认证成功，重定向
+```http
+localhost:8081/aiqiyi/qq/redirect?code=xxxx
+```
+
+2. 向服务端发起请求，获得access_token,refresh_token
+```java
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        MultiValueMap<String, String> params= new LinkedMultiValueMap<>();
+        params.add("grant_type","authorization_code");
+        params.add("code",code);
+        params.add("client_id","aiqiyi");
+        params.add("client_secret","secret");
+        params.add("redirect_uri","http://localhost:8081/aiqiyi/qq/redirect");
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(params, headers);
+        ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8080/oauth/token", requestEntity, String.class);
+        String token = response.getBody();
+        return token;
+```
+
+3. 得到返回
+```json
+{
+"access_token": "0ba0e21b-c768-4b9c-bd7b-1d39fe7ce8e5",
+"token_type": "bearer",
+"refresh_token": "dfdd9fe8-a8ea-42cb-a5bf-b6c7c672304b",
+"expires_in": 43199,
+"scope": "select"
+}
+```
+
+
 
 1. 尝试直接访问 qq 信息
 
@@ -71,7 +126,6 @@ http://localhost:8080/qq/info/250577914?access_token=9f54d26f-5545-4eba-a124-54e
 >
 > 注意：一次请求只会经过唯一一个过滤器链，详情见 FilterChainProxy 的实现。
 
-2018-4-25 日更新
 
 ### 新增授权码（authorization_code）模式配置示例
 
